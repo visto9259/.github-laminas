@@ -14,7 +14,38 @@ If you are working on new features or refactoring for an existing project item (
 
 If you want to propose a new component/package, create a RFC in the [Technical Steering Committee](https://github.com/laminas/technical-steering-committee) repository via a new issue report.
 
+## Release Branches
+
+Before you start making contributions to a repository, whether it is a code or documentation change, it is important to 
+understand how release branches are organized such that you choose the appropriate starting point for your contribution.
+
+Each repository uses _release branches_ named after the minor release series they represent; e.g., "2.11.x", "3.1.x", "0.2.x", etc.
+Each branch is under a "security window", and can and will receive security updates as long as the minimum supported version of PHP in that branch is still supported by php.net.
+Generally speaking, the default branch is targeting the next minor or major version, and does not yet have releases against it; it represents new features or changes to the package.
+The release branch with the next most recent release series is the one for the currently active release, and will receive bugfixes and security fixes, but no new features.
+Since each component has its own lifecycle, the number and names of releases branches will vary from component to component.
+
+For example, assuming the current release is 1.5.0, 
+- the next patch release is 1.5.1,
+- the next minor is 1.6.0 and, 
+- the next major is 2.0.0, 
+- the current release branch will be `1.5.x`, 
+- the next minor branch will be `1.6.x`, and 
+- the next major branch will be `2.0.x`
+- the default branch could be `1.6.x` or `2.0.x`
+
+You need to pick the target branch for your contribution based on the following criteria:
+* Documentation improvement: Current release branch 1.5.x
+* Bugfix: Current release branch 1.5.x
+* QA improvement (additional tests, CS fixes, etc.) that does not change code
+  behavior: Next minor 1.6.x
+* New feature, or refactor of existing code: Next minor 1.6.x
+* Backwards incompatible features and refactoring: Next major 2.0.x
+
 ## RUNNING TESTS
+
+> [!NOTE]
+> Generally speaking, PHPUnit is used to run test cases.
 
 To run tests:
 
@@ -42,6 +73,11 @@ You can turn on conditional tests with the `phpunit.xml` file.  To do so:
 
 ## Running Coding Standards Checks
 
+> [!NOTE]
+> Generally speaking, `squizlabs/php_codesniffer` is used to run coding standards checks using the Laminas Coding Standards. 
+> 
+> This is normally set up by having `laminas/laminas-coding-standard` as a dev dependency in Composer. 
+
 First, ensure you've installed dependencies via composer, per the previous section on running tests.
 
 To run CS checks only:
@@ -58,13 +94,66 @@ $ composer cs-fix
 
 If the above fixes any CS issues, please re-run the tests to ensure they pass, and make sure you add and commit the changes after verification.
 
-## Release Branches
+## Running Static Analysis
 
-Each repository uses _release branches_ named after the minor release series they represent; e.g., "2.11.x", "3.1.x", "0.2.x", etc.
-Each branch is under a "security window", and can and will receive security updates as long as the minimum supported version of PHP in that branch is still supported by php.net.
-Generally speaking, the default branch is targeting the next minor or major version, and does not yet have releases against it; it represents new features or changes to the package.
-The release branch with the next most recent release series is the one for the currently active release, and will receive bugfixes and security fixes, but no new features.
-Since each component has its own lifecycle, the number and names of releases branches will vary from component to component.
+Static analysis tools are usually set up in each repository to help improve the quality of the code base.
+
+> [!NOTE]
+> Generally speaking, `vimeo/psalm` is used to run static analysis.
+>
+
+To run static analysis:
+
+```console
+$ composer static-analysis
+```
+
+This will report any issues with the code.
+
+### Dealing with new issues and existing issues
+
+You should attempt to resolve all new issues where possible and re-run static analysis until there are no longer any issue 
+being reported.
+
+> [!TIP]
+> Issues reported by static analysis are often related to "MixedAssignment" where static analysis cannot determine the 
+> type of an element. This can easily overcome by adding a @var docblock or even better, an assertion that the element is of
+> the expected type. See the section on [performing assertions](#performing-assertions-on-the-code).
+> 
+> For example:
+> ```php
+> /** @var MyClass $object */
+> $object = $container->get('MyClass');
+> ```
+> or 
+> ```php
+> $object = $container->get('MyClass');
+> assert($object instanceof MyClass);
+> ```
+
+However, sometimes, it may be difficult or not possible to resolve some of the issues reported by static analysis. There
+are two ways to deal with unresolved issues, none of them the contributor should use unless instructed by the Maintainer:
+
+1. Suppress the issue by adding an issue handler or via a docblock statement in the code. Suppressing an issue is like hiding it, and it could be masking additional issues.
+2. Add the issue to the issue baseline. The file `psalm.basline.xml` in the root directory contains all the issues that were previously decided that they would be dealt with later.
+
+However, your changes may have resolved some of the issues that were added to the baseline previously (i.e it was decided 
+that we would deal with them later). 
+
+Therefore, it is important to check if the code changes have resolved any of the baselined
+issues by running:
+
+```console
+$ composer static-analysis -- --update-baseline
+```
+
+This will check if any of the issue listed in `psalm.baseline.xml` were resolved, update the baseline but it will not add
+new issues to the baseline.
+
+> [!CAUTION]
+> Do not set a new baseline. This is a decision that will be made by the Maintainer after reviewing any outstanding issues
+> to decide if they should be added to the baseline and dealt with later, for example, in the next minor QA release.
+
 
 ## Recommended Workflow for Contributions
 
@@ -72,7 +161,7 @@ Your first step is to establish a public repository from which we can pull your 
 We recommend using [GitHub](https://github.com), as that is where the component is already hosted.
 
 1. Setup a [GitHub account](https://github.com/join), if you haven't yet
-2. Fork the repository using the "Fork" button at the top right of the repository landing page.
+2. Fork the repository using the "Fork" button at the top right of the repository landing page. Unless you know specifically which branch you want to work on, it is safer to add all the branches to your fork
 3. Clone the canonical repository locally.
    Use the "Clone or download" button above the code listing on the repository landing pages to obtain the URL and instructions.
 4. Navigate to the directory where you have cloned the repository.
@@ -114,7 +203,7 @@ This simplifies the task of code review as well as the task of merging your chan
 
 A typical workflow will then consist of the following:
 
-1. Create a new local branch based off the appropriate release branch.
+1. Create a new local branch based off the appropriate release branch (see [Release Branches](#release-branches)).
 2. Switch to your new local branch.
    (This step can be combined with the previous step with the use of `git switch -c {new branch} {original branch}`, or, if the original branch is the current one, `git switch -c {new branch}`.)
 3. Do some work, commit, repeat as necessary.
@@ -142,6 +231,10 @@ $ git commit -s
 
 ... write your log message ...
 
+> [!IMPORTANT]
+> Write a descriptive commit message that describes the changes made. Messages like "Fixed issue #10" do not provide much 
+> info on what the commit is about. A message like "Added _someMethod()_ to _someClass_ to perform _x_" is more meaningful.
+
 ```console
 $ git push fork hotfix/9295:hotfix/9295
 Counting objects: 38, done.
@@ -161,14 +254,29 @@ Select the user/organization "laminas" (or whatever the upstream organization is
 
 You can also perform the same steps via the [GitHub CLI tool](https://cli.github.com).
 Execute `gh pr create`, and step through the dialog to create the pull request.
+
+It is important to make sure that you are creating a pull request against the branch that you are working on.
+
 If the branch you will submit against is not the default branch, use the `-B {branch}` option to specify the branch to create the patch against.
+
+> [!IMPORTANT]
+> Use a title for the pull request that describe what the pull request is about. 
+> Message like "Fixed issue #10" does not provide much
+> info on what the pull request is about. A title like "Fixed _someMethod()_ to correct _some problem_ " is more meaningful.
+>
+> If the pull request is fixing an issue, then add lines like this in the description of the request:
+> - Fixes #_{issue number}_
+> 
+> The automated release process will include a reference to the pull request in the release notes, therefore the more 
+> meaningful the pull request title is, the better the release notes will be.
+
 
 #### Performing assertions on the code
 
 We distinguish assertions in two categories:
 
 1. Expectations of something that is always supposed to be true
-1. Expectations of some input to follow some rule
+2. Expectations of some input to follow some rule
 
 The former is a development-only concern, aiming to aid tools (e.g. IDEs, static analysis) to perform a more accurate type detection.
 In this scenario, you should use the [`assert()`](https://www.php.net/manual/en/function.assert.php) function, which executes the expression when [`zend.assertions`](https://www.php.net/manual/en/ini.core.php#ini.zend.assertions) is enabled.
