@@ -1,4 +1,7 @@
 <!--
+
+Provide a meaningful title for the pull request that describes what the pull request is about. 
+
 Fill in the relevant information below to help triage your issue.
 
 Assuming the current release is 1.5.0, the next patch release is 1.5.1, the next minor is 1.6.0 and the next major is 2.0.0, The Current release branch will be `1.5.x`, the next minor branch will be `1.6.x`, and the next major branch will be `2.0.x`
@@ -17,14 +20,14 @@ patch; you can do this by providing either the --signoff or -s flag when using
 https://developercertificate.org for details.
 -->
 
-|    Q          |   A
-|-------------- | ------
-| Documentation | yes/no
-| Bugfix        | yes/no
-| BC Break      | yes/no
-| New Feature   | yes/no
-| RFC           | yes/no
-| QA            | yes/no
+| Q             | A      |
+|---------------|--------|
+| Documentation | yes/no |
+| Bugfix        | yes/no |
+| BC Break      | yes/no |
+| New Feature   | yes/no |
+| RFC           | yes/no |
+| QA            | yes/no |
 
 ### Description
 
@@ -61,4 +64,8 @@ Tell us about why this change is necessary:
   - Why do you feel the refactor is necessary?
   - What types of refactoring are you doing?
   - TARGET THE NEXT MINOR BRANCH OR THE NEXT MAJOR IF BC WILL BE BROKEN
+
+ - If the pull request is resolving issues
+  - Add "Fixes #{issue number}" to the description
+
 -->
