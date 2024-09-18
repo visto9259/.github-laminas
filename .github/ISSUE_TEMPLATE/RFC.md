@@ -10,7 +10,7 @@ labels: RFC
 <!-- Fill in the relevant information below to help determine scope. -->
 
 | Q                   | A      |
-| ------------------- | ------ |
+|---------------------|--------|
 | Proposed Version(s) | x.y.0  |
 | BC Break?           | Yes/No |
 

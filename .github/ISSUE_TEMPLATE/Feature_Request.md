@@ -8,11 +8,11 @@ labels: Enhancement
 
 <!-- Fill in the relevant information below to help triage your issue. -->
 
-|    Q        |   A
-|------------ | ------
-| New Feature | yes
-| RFC         | yes/no
-| BC Break    | yes/no
+| Q           | A      |
+|-------------|--------|
+| New Feature | yes    |
+| RFC         | yes/no |
+| BC Break    | yes/no |
 
 #### Summary
 

@@ -13,9 +13,9 @@ an expected change by checking the CHANGELOG.md file in this repository.
 
 <!-- Fill in the relevant information below to help triage your issue. -->
 
-|    Q        |   A
-|------------ | ------
-| Version     | x.y.z
+| Q       | A     |
+|---------|-------|
+| Version | x.y.z |
 
 #### Summary
 

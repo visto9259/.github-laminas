@@ -8,9 +8,9 @@ labels: Bug
 
 <!-- Fill in the relevant information below to help triage your issue. -->
 
-|    Q        |   A
-|------------ | ------
-| Version(s)  | x.y.z
+| Q          | A     |
+|------------|-------|
+| Version(s) | x.y.z |
 
 #### Summary
 
